@@ -404,3 +404,4 @@ func (t *SimpleChaincode) SaveSession(stub shim.ChaincodeStubInterface, args []s
 	var session Session
 	json.Unmarshal(UserAsBytes, &session)										//un stringify it aka JSON.parse()
 	
+}
