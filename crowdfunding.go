@@ -404,4 +404,292 @@ func (t *SimpleChaincode) SaveSession(stub shim.ChaincodeStubInterface, args []s
 	var session Session
 	json.Unmarshal(UserAsBytes, &session)										//un stringify it aka JSON.parse()
 	
+	session.StoreSession = append(session.StoreSession,authsession);	
+	fmt.Println("allsessions",session.StoreSession)					//append to allusers
+	fmt.Println("! appended user to allsessions")
+	jsonAsBytes, _ := json.Marshal(session)
+	fmt.Println("json",jsonAsBytes)
+	err = stub.PutState("session", jsonAsBytes)								//rewrite allusers
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("- end save session")
+return nil, nil
+}
+func (t *SimpleChaincode) SetUserForSession(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	var token string
+	var err error
+	fmt.Println("running write()")
+
+	if len(args) != 1 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 2.")
+	}
+	token=args[0]
+	    
+	UserAsBytes, err := stub.GetState("session")
+	if err != nil {
+		return nil, errors.New("failed to get sessions")
+	}
+	var session Session
+	 json.Unmarshal(UserAsBytes, &session)
+	 for i:=0;i<len(session.StoreSession);i++{
+	if(session.StoreSession[i].Token==token ){
+	
+	
+return []byte(session.StoreSession[i].Email), nil
+}
+	}
+return nil, nil
+	}
+
+func (t *SimpleChaincode) CreateCampaign(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	var err error
+
+	
+	if len(args) != 11 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 11")
+	}
+
+	//input sanitation
+	fmt.Println("- start registration")
+	if len(args[0]) <= 0 {
+		return nil, errors.New("1st argument must be a non-empty string")
+	}
+	if len(args[1]) <= 0 {
+		return nil, errors.New("2nd argument must be a non-empty string")
+	}
+	if len(args[2]) <= 0 {
+		return nil, errors.New("3rd argument must be a non-empty string")
+	}
+	if len(args[3]) <= 0 {
+		return nil, errors.New("4th argument must be a non-empty string")
+	}
+	if len(args[4]) <= 0 {
+		return nil, errors.New("5th argument must be a non-empty string")
+	}
+	if len(args[5]) <= 0 {
+		return nil, errors.New("6th argument must be a non-empty string")
+	}
+	if len(args[6]) <= 0 {
+		return nil, errors.New("7th argument must be a non-empty string")
+	}
+	if len(args[7]) <= 0 {
+		return nil, errors.New("7th argument must be a non-empty string")
+	}
+	if len(args[8]) <= 0 {
+		return nil, errors.New("5th argument must be a non-empty string")
+	}
+	if len(args[9]) <= 0 {
+		return nil, errors.New("6th argument must be a non-empty string")
+	}
+	if len(args[10]) <= 0 {
+		return nil, errors.New("7th argument must be a non-empty string")
+	}
+	
+	cuser:=CreateCampaign{}
+	
+	cuser.Campaign_Id, err = strconv.Atoi(args[0])
+	if err != nil {
+		return nil, errors.New("Failed to get loanamount as cannot convert it to int")
+	}
+    cuser.Campaign_Title = args[1]
+	
+	cuser.Campaign_Category=args[2]
+	cuser.Campaign_Story=args[3]
+	cuser.Campaign_Description=args[4]
+	cuser.Campaign_Image=args[5]
+	cuser.Campaign_Video=args[6]
+	cuser.Campaign_Goal_amount, err = strconv.Atoi(args[7])
+	if err != nil {
+		return nil, errors.New("Failed to get loanamount as cannot convert it to int")
+	}
+	cuser.Campaign_Creation_Date=makeTimestamp()
+	cuser.Project_Start_Date=args[8]
+	cuser.Initial_amount, err = strconv.Atoi(args[9])
+	if err != nil {
+		return nil, errors.New("Failed to get interest as cannot convert it to int")
+	}
+	cuser.Campaign_End_Date=args[10]
+
+	
+	fmt.Println("cuser",cuser)
+
+UserAsBytes, err := stub.GetState("getcausers")
+	if err != nil {
+		return nil, errors.New("Failed to get users")
+	}
+	var campaignlist CampaignList
+	json.Unmarshal(UserAsBytes, &campaignlist)										//un stringify it aka JSON.parse()
+	
+	campaignlist.Campaignlist = append(campaignlist.Campaignlist,cuser);	
+	fmt.Println("campaignallusers",campaignlist.Campaignlist)					//append to allusers
+	fmt.Println("! appended cuser to campaignallusers")
+	jsonAsBytes, _ := json.Marshal(campaignlist)
+	fmt.Println("json",jsonAsBytes)
+	err = stub.PutState("getcausers", jsonAsBytes)								//rewrite allusers
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("- end campaignlist")
+return nil, nil
+}
+
+func (t *SimpleChaincode) AddReward(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	var err error
+
+	
+	if len(args) != 4 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 8")
+	}
+
+	//input sanitation
+	fmt.Println("- start addreward")
+	if len(args[0]) <= 0 {
+		return nil, errors.New("1st argument must be a non-empty string")
+	}
+	if len(args[1]) <= 0 {
+		return nil, errors.New("2nd argument must be a non-empty string")
+	}
+	if len(args[2]) <= 0 {
+		return nil, errors.New("3rd argument must be a non-empty string")
+	}
+	if len(args[3]) <= 0 {
+		return nil, errors.New("3rd argument must be a non-empty string")
+	}
+	
+	
+	reward:=Rewards{}
+	reward.Reward_Title=args[0]
+	reward.Reward_Offer_Amount,err = strconv.Atoi(args[1])
+	if err != nil {
+		return nil, errors.New("Failed to get id as cannot convert it to int")
+	}
+	
+	
+    reward.Reward_Description=args[2]
+	Campaign_Id,err:= strconv.Atoi(args[3])
+	if err != nil {
+		return nil, errors.New("Failed to get id as cannot convert it to int")
+	}
+
+UserAsBytes, err := stub.GetState("getcausers")
+	if err != nil {
+		return nil, errors.New("Failed to get users")
+	}
+	
+	var campaignlist CampaignList
+	json.Unmarshal(UserAsBytes, &campaignlist)	
+	
+	
+		for i:=0;i<len(campaignlist.Campaignlist);i++{
+		
+		
+	if(campaignlist.Campaignlist[i].Campaign_Id==Campaign_Id){
+		
+campaignlist.Campaignlist[i].Rewards = append(campaignlist.Campaignlist[i].Rewards,reward);
+
+}
+	
+	jsonAsBytes, _ := json.Marshal(campaignlist)
+	fmt.Println("json",jsonAsBytes)
+	err = stub.PutState("getcausers", jsonAsBytes)								//rewrite allusers
+	if err != nil {
+		return nil, err
+	}
+	}
+		
+fmt.Println("- end addreward")
+return nil, nil
+	}									//un stringify it aka JSON.parse()
+	
+func (t *SimpleChaincode) Contribute(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	var err error
+
+	
+	
+	//input sanitation
+	fmt.Println("- start contribute")
+	
+	contribute:=Contribution{}
+	contribute.UserId=args[0]
+	contribute.AmountContributed,err =strconv.Atoi(args[1])
+	if err != nil {
+		return nil, errors.New("Failed to get amountcontributed as cannot convert it to int")
+	}
+	contribute.TransactionStatus=args[2]
+	contribute.Campaign_Id,err= strconv.Atoi(args[3])
+	if err != nil {
+		return nil, errors.New("Failed to get campaign_id as cannot convert it to int")
+	}
+	
+	
+
+	UserAsBytes, err := stub.GetState("getcontribute")
+	if err != nil {
+		return nil, errors.New("Failed to get contribute")
+	}
+	var contributionlist ContributionList
+	json.Unmarshal(UserAsBytes, &contributionlist)										//un stringify it aka JSON.parse()
+	
+	contributionlist.Contributionlist = append(contributionlist.Contributionlist,contribute);	
+	fmt.Println("contributionlist",contributionlist.Contributionlist)					//append to allusers
+	fmt.Println("! appended contribute to contributionlist")
+	jsonAsBytes, _ := json.Marshal(contributionlist)
+	fmt.Println("json",jsonAsBytes)
+	err = stub.PutState("getcontribute", jsonAsBytes)								//rewrite allusers
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("- end Contributionlist")
+return nil, nil
+}
+
+func (t *SimpleChaincode) UpdateTxStatus(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	var err error
+    var TransactionStatus string
+	
+	
+	//input sanitation
+	fmt.Println("- start updatetxstatus")
+	
+	
+	
+	PaymentStatus:=args[0]
+	Userid:=args[1]
+	TransactionStatus = "payment clear"
+UserAsBytes, err := stub.GetState("getcontribute")
+	if err != nil {
+		return nil, errors.New("Failed to get contributelist")
+	}
+	
+	var contributionlist ContributionList
+	json.Unmarshal(UserAsBytes, &contributionlist)
+	
+	
+		for i:=0;i<len(contributionlist.Contributionlist);i++{
+			if(PaymentStatus=="Payment Successful"){
+		if(contributionlist.Contributionlist[i].TransactionStatus=="pending" &&contributionlist.Contributionlist[i].UserId==Userid){
+contributionlist.Contributionlist[i].TransactionStatus=TransactionStatus
+}
+			}		
+	
+	
+	jsonAsBytes, _ := json.Marshal(contributionlist)
+	fmt.Println("json",jsonAsBytes)
+	err = stub.PutState("getcontribute", jsonAsBytes)								//rewrite allusers
+	if err != nil {
+		return nil, err
+	}
+	}
+		
+		
+fmt.Println("- end updatepaymentstatus")
+return nil, nil
+	}
+
+func makeTimestamp() string {
+	t := time.Now()
+	
+    return t.Format(("2006-01-02T15:04:05.999999-07:00"))
+   //return time.Now().UnixNano() / (int64(time.Millisecond)/int64(time.Nanosecond))
 }
